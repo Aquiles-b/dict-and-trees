@@ -2,14 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MUL 1
-#define DIV 2
-#define DIF 3
-#define ADD 4
 #define TAM_ENT 64
 
 struct nodo{
-    int valor;
+    char *caracter;
+    float valor;
     struct nodo *filho_esq;
     struct nodo *filho_dir;
 };
@@ -33,20 +30,20 @@ struct nodo* criaNodo()
     return nodo;
 }
 
-int qualOperacao(char* op)
+int ehOperacao(char* op)
 {
     switch (*op){
         case '*': 
-            return MUL;
+            return 1;
             break;
         case '/':
-            return DIV;
+            return 1;
             break;
         case '-':
-            return DIF;
+            return 1;
             break;
         case '+':
-            return ADD;
+            return 1;
             break;
         default:
             return 0;
@@ -54,65 +51,98 @@ int qualOperacao(char* op)
     }
 }
 
-/*Converte de char para int.*/
-int converteNumero(char* item)
-{
-    if (!(*item > 47 && *item < 58))
-        return 0;
 
-    return *item - 48; 
-}
-
-int montaSubArvore(struct nodo* nodo, char* entrada, int ind)
+void montaSubArvore(struct nodo* nodo)
 {
-    int item;
-    if (!(item = qualOperacao(&entrada[ind]))){
-        nodo->valor = converteNumero(&entrada[ind]);
-        nodo->filho_esq = NULL;
+    char *pt;
+    pt = strtok(NULL, " ");
+    nodo->caracter = pt;
+    nodo->valor = ehOperacao(pt);
+    if(nodo->valor == 0){
+        nodo->valor = strtod(pt, NULL);
         nodo->filho_dir = NULL;
-        return ind;
+        nodo->filho_esq = NULL;
+        return;
     }
-    nodo->valor = item;
-    nodo->filho_dir = criaNodo();
     nodo->filho_esq = criaNodo();
-
-    ind++;
-    ind = montaSubArvore(nodo->filho_esq, entrada, ind);
-    ind = montaSubArvore(nodo->filho_dir, entrada, ind);
-
-    return ind;
+    nodo->filho_dir = criaNodo();
+    montaSubArvore(nodo->filho_esq);
+    montaSubArvore(nodo->filho_dir);
 }
 
 struct nodo* montaArvore(char* entrada)
 {
-    int item, i;
-    i = 0;
-    struct nodo *raiz, *nodo;
+    char *pt;
+    struct nodo *raiz;
     raiz = criaNodo();
-    nodo = raiz;
-    if ((item = qualOperacao(&entrada[i]))){
-        nodo->valor = item;
-        nodo->filho_dir = criaNodo();
-        nodo->filho_esq = criaNodo();
-        i++;
-        i = montaSubArvore(nodo->filho_esq, entrada, i);
-        i = montaSubArvore(nodo->filho_dir, entrada, i);
-    }
-    else if ((item = converteNumero(&entrada[i])))
-        nodo->valor= item;
+
+    pt = strtok(entrada, " ");
+    raiz->caracter = pt;
+    raiz->valor = ehOperacao(pt);
+    if(raiz->valor == 0)
+        return raiz;
+
+    raiz->filho_esq = criaNodo();
+    raiz->filho_dir = criaNodo();
+
+    montaSubArvore(raiz->filho_esq);
+    montaSubArvore(raiz->filho_dir);
 
     return raiz;
 }
 
-void imprimeArvore(struct nodo* raiz)
+float resolveOperacao(float n1, float n2, char* op)
 {
-
+    switch (*op){
+        case '*': 
+            return n1*n2;
+            break;
+        case '/':
+            return n1/n2;
+            break;
+        case '-':
+            return n1-n2;
+            break;
+        case '+':
+            return n1+n2;
+            break;
+        default:
+            return 0;
+            break;
+    }
 }
-    
+
+float resolveArvore(struct nodo* nodo)
+{
+    if (!ehOperacao(nodo->caracter))
+        return nodo->valor;
+
+    float n1 = resolveArvore(nodo->filho_esq);
+    float n2 = resolveArvore(nodo->filho_dir);
+
+    return resolveOperacao(n1, n2, nodo->caracter);
+}
+
+void imprimeArvore(struct nodo* nodo)
+{
+    if(nodo == NULL)
+        return;
+
+    printf ("%s ", nodo->caracter);
+    imprimeArvore(nodo->filho_esq);
+    imprimeArvore(nodo->filho_dir);
+}
+
 
 int main(){
     char* entrada = lerEntrada();
     struct nodo* raiz = montaArvore(entrada);
+    imprimeArvore(raiz);
+
+    float resul = resolveArvore(raiz);
+
+    printf ("\n");
+    printf ("%f\n", resul);
 
     free(entrada);
 
