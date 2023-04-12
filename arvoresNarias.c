@@ -61,6 +61,53 @@ int insereSubArvore(struct nodo *raizSub, struct nodo *nodo)
     return 0;
 }
 
+/* Imprime a arvore em pre-ordem.*/
+void imprimePreOrd(struct nodo *nodo)
+{
+    if (nodo == NULL)
+        return;
+    printf ("%d ", nodo->chave);
+    imprimePreOrd(nodo->filhoEsq);
+    imprimePreOrd(nodo->idir);
+}
+ 
+void buscaDf(struct nodo *nodo)
+{
+    if (nodo == NULL)
+        return;
+    printf ("%d ", nodo->chave);
+    imprimePreOrd(nodo->filhoEsq);
+    imprimePreOrd(nodo->idir);
+}
+
+void imprimeFilhos(struct nodo *nodo)
+{
+    struct nodo *nodoAux = nodo->filhoEsq;
+    while (nodoAux != NULL) {
+        printf ("%d ", nodoAux->chave);
+        nodoAux = nodoAux->idir;
+    }
+}
+
+/* imprime em largura.*/
+void auxImprimeLargura(struct nodo *nodo)
+{
+    if (nodo == NULL)
+        return;
+
+    imprimeFilhos(nodo);
+    auxImprimeLargura(nodo->idir);
+    auxImprimeLargura(nodo->filhoEsq);
+}
+
+/* Imprime em largura.*/
+void imprimeLargura(struct nodo *raiz)
+{
+    printf ("%d ", raiz->chave);
+    auxImprimeLargura(raiz);
+    printf ("\n");
+}
+
 int main()
 {
     struct nodo *raiz, *subArv, *nodo;
@@ -93,6 +140,8 @@ int main()
     /* Adiciona filho ao nodo 3 da subArv.*/
     nodo = subArv->filhoEsq->idir;
     adicionaFilho(nodo, 7);
+
+    imprimeLargura(raiz);
 
     /* Insere a subArv no nodo 3 da raiz.*/
     insereSubArvore(subArv, raiz->filhoEsq->idir);
