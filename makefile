@@ -1,7 +1,11 @@
 CFLAGS= -g -Wall -std=c99
 
-np: notacaoPolonesa.c
-	gcc notacaoPolonesa.c -o np $(CFLAGS)
+PROGS= arvoresNarias
 
-run: np
-	./np
+all: $(PROGS)
+
+%.c: %.c
+	gcc $@.c -o $@ $(CFLAGS)
+
+clean:
+	rm -f $(PROGS)
